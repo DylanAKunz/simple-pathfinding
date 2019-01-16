@@ -9,13 +9,15 @@ public class pathfinding {
 	public static final int[] endTile = {dimension/2, dimension - 1};
 	
 	/**
-	 * 
+	 * Creates a number of obstacles based on provided parameters, returning the coordinates 
 	 * @param number the number of obstacles to return
-	 * @return a boolean array with obsctructed tiles = false
+	 * @param dimensionX the desired number of x coordinates
+	 * @param dimensionY the desired number of y coordinates.
+	 * @return a boolean array with obstructed tiles = false
 	 */
-	public static boolean[][] obstacleGenerate(int number){
+	public static boolean[][] obstacleGenerate(int number, int dimensionX, int dimensionY){
 		Random rand = new Random();
-		boolean[][] passableTiles = new boolean[dimension][dimension];
+		boolean[][] passableTiles = new boolean[dimensionX][dimensionY];
 		int x, y;
 		//Iterate through the multidimensional array and set all values to true, for simplicity, I.E. true = passable
 		for(int i = 0; i < dimension;i++) {
@@ -25,8 +27,8 @@ public class pathfinding {
 		}
 		//Iterate through creating a random x and y coordinate for the number of obstacles set, assign the boolean from passable tiles that matches to false, and print a statement stating its been obstructed.
 		for(int i = 0; i < number; i++) {
-			x = rand.nextInt(dimension);
-			y = rand.nextInt(dimension);
+			x = rand.nextInt(dimensionX);
+			y = rand.nextInt(dimensionY);
 			passableTiles[x][y] = false;
 			System.out.println(x + " " + y + " is obstructed.");
 		}
@@ -38,10 +40,12 @@ public class pathfinding {
 	 * Travels along the path of provided tiles from the provided start position, avoiding obstructed tiles until reaching the provided end coordinates. 
 	 * @param passableTiles A two dimensional boolean array of obstructed/unobstructed tiles with passables tiles being equal to true.
 	 * @param startPosition a one dimensional integer array containing the starting coordinates, [0] being the x and [1] being the y coordinates.
+	 * @param dimensionX the provided number of x coordinates, should be equal to the x dimension of passableTiles
+	 * @param dimensionY the provided number of y coordinates, should be equal to the y dimension of passableTiles
 	 * @param targetTile a one dimensional integer array containing the starting coordinates, [0] being the x and [1] being the y coordinates.
 	 */
-	public static void pathfinding(boolean[][] passableTiles, int[] startPosition, int[] targetTile) {
-		int[][] tiles = new int[dimension][dimension];
+	public static void pathfinding(boolean[][] passableTiles, int[] startPosition, int[] targetTile, int dimensionX, int dimensionY) {
+		int[][] tiles = new int[dimensionX][dimensionY];
 		//Error code variable, and counter.  0 for no end, 1 for ended successfuly and 2 for ran out of viable tiles to attempt to move to.  reused for second loop.
 		int reachedEnd = 0, counter = 1;
 		int[] currentTile = new int[2];
@@ -153,8 +157,8 @@ public class pathfinding {
 	 */
 	public static void main(String[] args) {
 		boolean[][] passableTiles = new boolean[dimension][dimension];
-		passableTiles = obstacleGenerate(obstacles);
-		pathfinding(passableTiles, startTile, endTile);
+		passableTiles = obstacleGenerate(obstacles, dimension, dimension);
+		pathfinding(passableTiles, startTile, endTile, dimension, dimension);
 	}
 
 }
