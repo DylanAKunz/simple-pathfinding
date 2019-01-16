@@ -1,13 +1,18 @@
 import java.util.Random;
 import java.util.Vector;
+import java.util.List;
 
 public class pathfinding {
 	public static final int dimension = 10;
-	public static final int obstacles = 5;
+	public static final int obstacles = 15;
 	public static final int[] startTile = {dimension/2, 0};
 	public static final int[] endTile = {dimension/2, dimension - 1};
 	
-	//generate a series of obstacles for the pathfinding
+	/**
+	 * 
+	 * @param number the number of obstacles to return
+	 * @return a boolean array with obsctructed tiles = false
+	 */
 	public static boolean[][] obstacleGenerate(int number){
 		Random rand = new Random();
 		boolean[][] passableTiles = new boolean[dimension][dimension];
@@ -29,18 +34,24 @@ public class pathfinding {
 	}
 	
 	
-	//Travel along the path towards the destination
+	/**
+	 * Travels along the path of provided tiles from the provided start position, avoiding obstructed tiles until reaching the provided end coordinates. 
+	 * @param passableTiles A two dimensional boolean array of obstructed/unobstructed tiles with passables tiles being equal to true.
+	 * @param startPosition a one dimensional integer array containing the starting coordinates, [0] being the x and [1] being the y coordinates.
+	 * @param targetTile a one dimensional integer array containing the starting coordinates, [0] being the x and [1] being the y coordinates.
+	 */
 	public static void pathfinding(boolean[][] passableTiles, int[] startPosition, int[] targetTile) {
 		int[][] tiles = new int[dimension][dimension];
-		//Error code variable, and counter.  0 for no end, 1 for ended successfully and 2 for ran out of viable tiles to attempt to move to.  reused for second loop.
+		//Error code variable, and counter.  0 for no end, 1 for ended successfuly and 2 for ran out of viable tiles to attempt to move to.  reused for second loop.
 		int reachedEnd = 0, counter = 1;
-		boolean changed = false;
 		int[] currentTile = new int[2];
+		boolean moved;
 		//initializes the current tile to the end tile for the second loop.
 		currentTile[0] = targetTile[0];
 		currentTile[1] = targetTile[1];
+		passableTiles[targetTile[0]][targetTile[1]] = true;
 		//Contains the currently active valid tiles to attempt to move from.
-		Vector<Integer> activeTiles = new Vector<Integer>();
+		List<Integer> activeTiles = new Vector<Integer>();
 		//Contains the tiles that have been successfully moved into.
 		Vector<Integer> activeTilesTemp = new Vector<Integer>();
 		//Add the starting tile to the initial list of active tiles, and sets the first move to be 1.
@@ -53,12 +64,12 @@ public class pathfinding {
 			//Loops through until the active moves have been exhausted, allowing the counter to increase and the new tiles to be loaded into the active vector.
 			while(activeTiles.size() != 0) {
 				//Loops through each possible directly adjacent tile, checking if it is A. Within the array of tiles. B. currently without a move counter on it. if it is sets it to be the current counter.  does not need to test if tile is lower, as tile will either be less or the same number of moves to reach.
-				for(int i = -1; i < 2; i += 2) {
+				for(int i = -1; i <= 1; i += 2) {
 					//Tests for the x axis
 					//Checks if within bounds.
 					if(activeTiles.get(0) + i >= 0 && activeTiles.get(0) + i < dimension) {
 						//Checks if already set move counter on the tile.
-						if(tiles[activeTiles.get(0) + i][activeTiles.get(1)] == 0) {
+						if(tiles[activeTiles.get(0) + i][activeTiles.get(1)] == 0 && passableTiles[activeTiles.get(0) + i][activeTiles.get(1)] == true) {
 							tiles[activeTiles.get(0) + i][activeTiles.get(1)] = counter;
 							//Adds the tile to the activeTiles for the next move
 							activeTilesTemp.add(activeTiles.get(0) + i);
@@ -69,7 +80,7 @@ public class pathfinding {
 					//Checks if within bounds.
 					if(activeTiles.get(1) + i >= 0 && activeTiles.get(1) + i < dimension) {
 						//Checks if already set move counter on the tile.
-						if(tiles[activeTiles.get(0)][activeTiles.get(1) + i] == 0) {
+						if(tiles[activeTiles.get(0)][activeTiles.get(1) + i] == 0 && passableTiles[activeTiles.get(0)][activeTiles.get(1) + i] == true) {
 							tiles[activeTiles.get(0)][activeTiles.get(1) + i] = counter;
 							//Adds the tile to the activeTiles for the next move
 							activeTilesTemp.add(activeTiles.get(0));
@@ -77,62 +88,69 @@ public class pathfinding {
 						}
 					}
 				}
-				//Remove the tiles from the active vector
+				//Remove the tile from the active vector
 				activeTiles.remove(0);
 				activeTiles.remove(0);
 			}
 			//If no tiles were added to the activeTilesTemp, this indicates the program found no valid moves, so set the reachedEnd to 2, indicating it was unable to reach the destination.
-			if(activeTilesTemp.size() == 0) {
+			if(activeTilesTemp.size() <= 1) {
 				reachedEnd = 2;
 			}else {
 				//Else add the activeTilesTemp to the activeTiles and purging activeTilesTemp, readying it for the next turn.
 				for(int x = 0; x < activeTilesTemp.size(); x++) {
+					if(activeTilesTemp.get(0) == targetTile[0] && activeTilesTemp.get(1) == targetTile[1]) {
+						reachedEnd = 1;
+					}
 					activeTiles.add(activeTilesTemp.get(0));
-					activeTiles.add(activeTilesTemp.get(1));
 					activeTilesTemp.remove(0);
+					activeTiles.add(activeTilesTemp.get(0));
 					activeTilesTemp.remove(0);
+					//If reached the target tile, set reachedEnd to 1, indicating a successful path.
 				}
-			}
-			//If reached the target tile, set reachedEnd to 1, indicating a successfull path.
-			if(activeTiles.get(0) == targetTile[0] && activeTiles.get(1) == targetTile[1]) {
-				reachedEnd = 1;
 			}
 		}
 		System.out.println("Reached end code: " + reachedEnd);
-		//If finding a path was successfull, iterate backwards through the path starting at the target tile.
+		//If finding a path was successful, iterate backwards through the path starting at the target tile.
 		if(reachedEnd == 1) {
 			reachedEnd = 0;
 			//Iterate through until reaching the beginning tile.
 			while(reachedEnd != 1) {
+				moved = false;
 				System.out.println("Back tracing path, Current tile: " + currentTile[0] + " " + currentTile[1]);
-				//Iterate through the four directly adjacent directions, ceasing if a valid move was found.
+				//Iterate through the four directly adjacent directions, checking for which of the four has the shortest path back to the start.
 				for(int i = -1; i < 2; i += 2) {
-					if(currentTile[0] + i >= 0 && currentTile[0] + i < dimension) {
-						if(tiles[currentTile[0] + i][currentTile[1]] < counter) {
+					//Checking if in bounds, then the x axis
+					if(currentTile[0] + i >= 0 && currentTile[0] + i < dimension - 1 && moved == false) {
+						if(tiles[currentTile[0] + i][currentTile[1]] < counter && tiles[currentTile[0] + i][currentTile[1]] > 0) {
 							currentTile[0] = currentTile[0] + i;
-							changed = true;
 							counter = tiles[currentTile[0]][currentTile[1]];
+							moved = true;
 						}
 					}
-					if(currentTile[1] + i >= 0 && currentTile[1] + i < dimension - 1) {
-						if(tiles[currentTile[0]][currentTile[1] + i] < counter) {
+					//Checking if in bounds, then the y axis
+					if(currentTile[1] + i >= 0 && currentTile[1] + i < dimension - 1 && moved == false) {
+						if(tiles[currentTile[0]][currentTile[1] + i] < counter && tiles[currentTile[0]][currentTile[1] + i] > 0) {
 							currentTile[1] = currentTile[1] + i;
-							changed = true;
 							counter = tiles[currentTile[0]][currentTile[1]];
+							moved = true;
 						}
 					}
 				}
+				//sets reachedEnd to 1 if back at the starting position, allowing the loop to end.  Only break point for the loop, as at reaching this point should have guaranteed path to start.
 				if(currentTile[0] == startPosition[0] && currentTile[1] == startPosition[1]) {
 					reachedEnd = 1;
+					//Print one last log, to show user they are at their starting point.
 					System.out.println("Back tracing path, Current tile: " + currentTile[0] + " " + currentTile[1]);
 				}
-				changed = false;
 			}
 		}
 	}
 	
 	
-	//Initialize obstacles, call functions for pathfinding, display path.
+	/** 
+	 * Initialize obstacles, call functions for pathfinding, display path.
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		boolean[][] passableTiles = new boolean[dimension][dimension];
 		passableTiles = obstacleGenerate(obstacles);
