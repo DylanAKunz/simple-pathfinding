@@ -20,8 +20,8 @@ public class pathfinding {
 		boolean[][] passableTiles = new boolean[dimensionX][dimensionY];
 		int x, y;
 		//Iterate through the multidimensional array and set all values to true, for simplicity, I.E. true = passable
-		for(int i = 0; i < dimension;i++) {
-			for(int z = 0; z < dimension; z++) {
+		for(int i = 0; i < dimensionX;i++) {
+			for(int z = 0; z < dimensionY; z++) {
 				passableTiles[i][z] = true;
 			}
 		}
@@ -71,7 +71,7 @@ public class pathfinding {
 				for(int i = -1; i <= 1; i += 2) {
 					//Tests for the x axis
 					//Checks if within bounds.
-					if(activeTiles.get(0) + i >= 0 && activeTiles.get(0) + i < dimension) {
+					if(activeTiles.get(0) + i >= 0 && activeTiles.get(0) + i < dimensionX) {
 						//Checks if already set move counter on the tile.
 						if(tiles[activeTiles.get(0) + i][activeTiles.get(1)] == 0 && passableTiles[activeTiles.get(0) + i][activeTiles.get(1)] == true) {
 							tiles[activeTiles.get(0) + i][activeTiles.get(1)] = counter;
@@ -82,7 +82,7 @@ public class pathfinding {
 					}
 					//Tests for the y axis
 					//Checks if within bounds.
-					if(activeTiles.get(1) + i >= 0 && activeTiles.get(1) + i < dimension) {
+					if(activeTiles.get(1) + i >= 0 && activeTiles.get(1) + i < dimensionY) {
 						//Checks if already set move counter on the tile.
 						if(tiles[activeTiles.get(0)][activeTiles.get(1) + i] == 0 && passableTiles[activeTiles.get(0)][activeTiles.get(1) + i] == true) {
 							tiles[activeTiles.get(0)][activeTiles.get(1) + i] = counter;
@@ -124,7 +124,7 @@ public class pathfinding {
 				//Iterate through the four directly adjacent directions, checking for which of the four has the shortest path back to the start.
 				for(int i = -1; i < 2; i += 2) {
 					//Checking if in bounds, then the x axis
-					if(currentTile[0] + i >= 0 && currentTile[0] + i < dimension - 1 && moved == false) {
+					if(currentTile[0] + i >= 0 && currentTile[0] + i < dimensionX - 1 && moved == false) {
 						if(tiles[currentTile[0] + i][currentTile[1]] < counter && tiles[currentTile[0] + i][currentTile[1]] > 0) {
 							currentTile[0] = currentTile[0] + i;
 							counter = tiles[currentTile[0]][currentTile[1]];
@@ -132,7 +132,7 @@ public class pathfinding {
 						}
 					}
 					//Checking if in bounds, then the y axis
-					if(currentTile[1] + i >= 0 && currentTile[1] + i < dimension - 1 && moved == false) {
+					if(currentTile[1] + i >= 0 && currentTile[1] + i < dimensionY - 1 && moved == false) {
 						if(tiles[currentTile[0]][currentTile[1] + i] < counter && tiles[currentTile[0]][currentTile[1] + i] > 0) {
 							currentTile[1] = currentTile[1] + i;
 							counter = tiles[currentTile[0]][currentTile[1]];
